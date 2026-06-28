@@ -1,55 +1,104 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Teleprompter الدهشان</title>
 <style>
-:root{--bg:#050505;--panel:#151515;--text:#fff;--muted:#bbb;--accent:#d4af37}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Tahoma,sans-serif;overflow:hidden}.app{height:100vh;display:flex;flex-direction:column}.controls{background:var(--panel);padding:10px;display:grid;grid-template-columns:1fr auto;gap:10px;border-bottom:1px solid #333}.textarea{width:100%;min-height:110px;background:#080808;color:#fff;border:1px solid #444;border-radius:10px;padding:12px;font-size:18px;line-height:1.7;resize:vertical}.buttons{display:flex;flex-wrap:wrap;gap:7px;align-content:flex-start;min-width:315px}button,input{border:0;border-radius:9px;padding:10px 12px;font-size:15px}button{background:var(--accent);color:#000;font-weight:700;cursor:pointer}button.secondary{background:#333;color:#fff}.range{background:#222;color:#fff;width:145px}.viewer{position:relative;flex:1;overflow:hidden}.text{position:absolute;width:100%;padding:7vh 8vw 35vh;text-align:center;font-size:54px;line-height:1.75;white-space:pre-wrap;font-weight:700}.mirror{transform:scaleX(-1)}.hint{font-size:13px;color:var(--muted);padding-top:5px}.shareBox{direction:ltr;text-align:left;width:100%;background:#070707;color:#eee;border:1px solid #444;border-radius:8px;padding:9px;font-size:12px;word-break:break-all;max-height:72px;overflow:auto}body.full .controls{display:none}body.full .text{font-size:64px}@media(max-width:800px){.controls{grid-template-columns:1fr}.buttons{min-width:auto}.text{font-size:38px;padding:5vh 5vw 35vh}}
+:root{--bg:#050505;--fg:#f7f7f7;--panel:#161616;--line:#333;--accent:#d4af37;--muted:#aaa;--btn:#242424}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:Arial,Tahoma,sans-serif;overflow:hidden}
+body{direction:rtl}.app{height:100vh;display:flex;flex-direction:column}.top{background:var(--panel);border-bottom:1px solid var(--line);padding:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;z-index:5}.brand{font-weight:bold;color:var(--accent);margin-left:10px;white-space:nowrap}.btn{background:var(--btn);color:var(--fg);border:1px solid #444;border-radius:10px;padding:10px 14px;font-size:17px;cursor:pointer;min-width:80px}.btn:focus{outline:3px solid var(--accent)}.btn.primary{background:var(--accent);color:#111;border-color:var(--accent);font-weight:bold}.range{width:120px}label{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:5px}.main{flex:1;display:flex;min-height:0}.editor{width:36%;min-width:300px;border-left:1px solid var(--line);padding:10px;background:#0c0c0c;display:flex;flex-direction:column;gap:8px}textarea{flex:1;width:100%;resize:none;background:#fff;color:#111;border:0;border-radius:8px;padding:12px;font-size:20px;line-height:1.8;direction:rtl}.stageWrap{flex:1;position:relative;overflow:hidden;background:#000}.stage{position:absolute;left:0;right:0;top:0;will-change:transform;padding:45vh 8vw 70vh 8vw;font-size:54px;line-height:1.8;text-align:center;white-space:pre-wrap;font-weight:700}.stage.mirror{transform:scaleX(-1)}.hint{position:absolute;left:12px;bottom:10px;color:#777;font-size:14px;z-index:3;direction:rtl}.hidden{display:none!important}.fullscreen .top,.fullscreen .editor{display:none}.fullscreen .main{height:100vh}.fullscreen .stage{padding-left:10vw;padding-right:10vw}.ltr{direction:ltr;text-align:left}.toast{position:fixed;bottom:18px;right:18px;background:#222;border:1px solid #555;color:#fff;padding:12px 15px;border-radius:10px;z-index:50;display:none;max-width:80vw}.small{font-size:13px;color:#aaa}.select{background:#222;color:#fff;border:1px solid #444;border-radius:8px;padding:9px;font-size:16px}@media(max-width:900px){.main{flex-direction:column}.editor{width:100%;height:42%;border-left:0;border-bottom:1px solid var(--line)}.stage{font-size:42px}.btn{font-size:16px;padding:9px 11px;min-width:auto}.range{width:95px}}
+@media (hover:none){.btn{padding:13px 16px;font-size:18px}.top{gap:10px}.stage{font-size:52px}}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="controls">
-    <div>
-      <textarea id="input" class="textarea" placeholder="الصق النص هنا..."></textarea>
-      <div class="hint">على اللاب: الصق النص ثم اضغط إنشاء رابط للتليفزيون. افتح الرابط على التليفزيون فيظهر النص تلقائيًا.</div>
-      <div id="share" class="shareBox" style="display:none"></div>
+<div class="app" id="app">
+  <div class="top" id="topbar">
+    <div class="brand">Teleprompter الدهشان</div>
+    <button class="btn primary" id="playBtn" tabindex="1">تشغيل</button>
+    <button class="btn" id="pauseBtn" tabindex="2">إيقاف</button>
+    <button class="btn" id="resetBtn" tabindex="3">البداية</button>
+    <button class="btn" id="fullBtn" tabindex="4">ملء الشاشة</button>
+    <button class="btn" id="mirrorBtn" tabindex="5">Mirror</button>
+    <button class="btn" id="shareBtn" tabindex="6">رابط للتليفزيون</button>
+    <label>السرعة <input id="speed" class="range" type="range" min="5" max="220" value="55"></label>
+    <label>الخط <input id="font" class="range" type="range" min="28" max="110" value="54"></label>
+    <select id="theme" class="select"><option value="dark">أسود</option><option value="white">أبيض</option><option value="green">أخضر</option></select>
+    <span class="small">Space تشغيل/إيقاف — الأسهم للسرعة</span>
+  </div>
+  <div class="main">
+    <div class="editor" id="editorBox">
+      <textarea id="text" placeholder="الصق النص هنا... ثم اضغط تشغيل. النص يحفظ تلقائيًا."></textarea>
+      <div class="small">ملاحظة: زر التشغيل يعمل بالضغط واللمس والريموت. على التلفزيون استخدم زر OK بعد تحديد الزر.</div>
     </div>
-    <div class="buttons">
-      <button onclick="start()">تشغيل</button>
-      <button class="secondary" onclick="pause()">إيقاف</button>
-      <button class="secondary" onclick="resetScroll()">رجوع للبداية</button>
-      <button class="secondary" onclick="toggleFull()">ملء الشاشة</button>
-      <button class="secondary" onclick="toggleMirror()">عكس Mirror</button>
-      <button onclick="makeLink()">إنشاء رابط للتليفزيون</button>
-      <button class="secondary" onclick="copyLink()">نسخ الرابط</button>
-      <label>السرعة <input id="speed" class="range" type="range" min="0.3" max="8" step="0.1" value="1.5"></label>
-      <label>حجم الخط <input id="size" class="range" type="range" min="24" max="110" step="1" value="54"></label>
+    <div class="stageWrap" id="stageWrap" tabindex="0">
+      <div class="stage" id="stage">الصق النص في المربع ثم اضغط تشغيل</div>
+      <div class="hint" id="hint">اضغط OK أو Space للتشغيل/الإيقاف</div>
     </div>
   </div>
-  <div class="viewer" id="viewer"><div id="text" class="text"></div></div>
 </div>
+<div class="toast" id="toast"></div>
 <script>
-const input=document.getElementById('input'), text=document.getElementById('text'), speed=document.getElementById('speed'), size=document.getElementById('size'), share=document.getElementById('share');
-let running=false, y=0, last=0, currentLink='';
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+var app=$('app'), text=$('text'), stage=$('stage'), wrap=$('stageWrap');
+var playBtn=$('playBtn'), pauseBtn=$('pauseBtn'), resetBtn=$('resetBtn'), fullBtn=$('fullBtn'), mirrorBtn=$('mirrorBtn'), shareBtn=$('shareBtn');
+var speed=$('speed'), font=$('font'), theme=$('theme'), toast=$('toast');
+var running=false, y=0, last=0, raf=0, isMirror=false;
 function b64EncodeUnicode(str){return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
-function b64DecodeUnicode(str){str=str.replace(/-/g,'+').replace(/_/g,'/'); while(str.length%4) str+='='; return decodeURIComponent(escape(atob(str)))}
-function setText(v){input.value=v; text.textContent=v || 'الصق النص من اللاب أو افتح رابط النص على التليفزيون'; localStorage.setItem('dhshan_prompt_text', v)}
-function load(){let h=new URLSearchParams(location.hash.slice(1)); let q=h.get('text'); if(q){try{setText(b64DecodeUnicode(q)); return}catch(e){setText(q);return}} setText(localStorage.getItem('dhshan_prompt_text')||'')}
-input.addEventListener('input',()=>setText(input.value));
-size.addEventListener('input',()=>text.style.fontSize=size.value+'px');
-function loop(t){if(!last)last=t; let dt=(t-last)/16; last=t; if(running){y-=Number(speed.value)*dt; text.style.transform=(text.classList.contains('mirror')?'scaleX(-1) ':'')+`translateY(${y}px)`} requestAnimationFrame(loop)}
-function start(){running=true; document.body.classList.add('full'); if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{})}
-function pause(){running=false}
-function resetScroll(){y=0;text.style.transform=(text.classList.contains('mirror')?'scaleX(-1) ':'')+'translateY(0px)'}
-function toggleFull(){document.body.classList.toggle('full')}
-function toggleMirror(){text.classList.toggle('mirror'); resetScroll()}
-function makeLink(){const encoded=b64EncodeUnicode(input.value); currentLink=location.origin+location.pathname+'#text='+encoded; share.style.display='block'; share.textContent=currentLink; navigator.clipboard?.writeText(currentLink)}
-function copyLink(){if(!currentLink) makeLink(); navigator.clipboard?.writeText(currentLink); alert('تم نسخ الرابط')}
-document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();running?pause():start()} if(e.key==='Escape'){document.body.classList.remove('full');pause()}})
-load(); text.style.fontSize=size.value+'px'; requestAnimationFrame(loop);
+function b64DecodeUnicode(str){str=str.replace(/-/g,'+').replace(/_/g,'/'); while(str.length%4)str+='='; return decodeURIComponent(escape(atob(str)))}
+function showToast(msg){toast.textContent=msg;toast.style.display='block';clearTimeout(showToast.t);showToast.t=setTimeout(function(){toast.style.display='none'},2600)}
+function save(){try{localStorage.setItem('dhshan_tp_text',text.value);localStorage.setItem('dhshan_tp_speed',speed.value);localStorage.setItem('dhshan_tp_font',font.value);localStorage.setItem('dhshan_tp_mirror',isMirror?'1':'0');localStorage.setItem('dhshan_tp_theme',theme.value)}catch(e){}}
+function load(){
+ var params=new URLSearchParams(location.search); var hash=location.hash||''; var t='';
+ try{ if(params.get('t')) t=b64DecodeUnicode(params.get('t')); else if(hash.indexOf('text=')>-1) t=b64DecodeUnicode(hash.split('text=')[1].split('&')[0]); }catch(e){}
+ if(!t){try{t=localStorage.getItem('dhshan_tp_text')||''}catch(e){}}
+ text.value=t;
+ try{speed.value=localStorage.getItem('dhshan_tp_speed')||speed.value;font.value=localStorage.getItem('dhshan_tp_font')||font.value;theme.value=localStorage.getItem('dhshan_tp_theme')||theme.value;isMirror=localStorage.getItem('dhshan_tp_mirror')==='1'}catch(e){}
+ applyAll();
+}
+function applyTheme(){
+ if(theme.value==='white'){document.documentElement.style.setProperty('--bg','#fff');document.documentElement.style.setProperty('--fg','#111');stage.style.background='#fff';stage.style.color='#111'}
+ else if(theme.value==='green'){document.documentElement.style.setProperty('--bg','#001a05');document.documentElement.style.setProperty('--fg','#d8ffd8');stage.style.background='#001a05';stage.style.color='#d8ffd8'}
+ else{document.documentElement.style.setProperty('--bg','#050505');document.documentElement.style.setProperty('--fg','#f7f7f7');stage.style.background='#000';stage.style.color='#f7f7f7'}
+}
+function applyAll(){stage.textContent=text.value.trim()||'الصق النص في المربع ثم اضغط تشغيل';stage.style.fontSize=font.value+'px';if(isMirror)stage.classList.add('mirror');else stage.classList.remove('mirror');applyTheme();setY(y);save()}
+function setY(v){y=v;stage.style.transform=(isMirror?'scaleX(-1) ':'')+'translateY('+(-y)+'px)'}
+function maxY(){return Math.max(0, stage.scrollHeight - wrap.clientHeight + 200)}
+function tick(ts){if(!running)return;if(!last)last=ts;var dt=(ts-last)/1000;last=ts;setY(Math.min(maxY(), y + Number(speed.value)*dt));if(y>=maxY()){pause();showToast('انتهى النص')}else{raf=requestAnimationFrame(tick)}}
+function play(){applyAll();running=true;last=0;cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);showToast('تم التشغيل')}
+function pause(){running=false;cancelAnimationFrame(raf);last=0}
+function toggle(){running?pause():play()}
+function reset(){pause();setY(0);wrap.focus();showToast('تم الرجوع للبداية')}
+function fullscreen(){
+ app.classList.toggle('fullscreen');
+ try{ if(!document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); else if(document.exitFullscreen) document.exitFullscreen(); }catch(e){}
+ wrap.focus();
+}
+function mirror(){isMirror=!isMirror;applyAll();showToast(isMirror?'تم عكس النص':'تم إلغاء العكس')}
+async function share(){
+ applyAll(); var base=location.href.split('#')[0].split('?')[0]; var link=base+'?t='+b64EncodeUnicode(text.value);
+ try{await navigator.clipboard.writeText(link);showToast('تم نسخ رابط التليفزيون')}catch(e){prompt('انسخ هذا الرابط وافتحه على التليفزيون:',link)}
+}
+function bind(el,fn){['click','touchend'].forEach(function(ev){el.addEventListener(ev,function(e){e.preventDefault();fn();},false)});el.addEventListener('keyup',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fn();}},false)}
+bind(playBtn,play);bind(pauseBtn,pause);bind(resetBtn,reset);bind(fullBtn,fullscreen);bind(mirrorBtn,mirror);bind(shareBtn,share);
+text.addEventListener('input',applyAll);speed.addEventListener('input',save);font.addEventListener('input',applyAll);theme.addEventListener('change',applyAll);
+document.addEventListener('keydown',function(e){
+ var tag=(document.activeElement&&document.activeElement.tagName||'').toLowerCase();
+ if(tag==='textarea')return;
+ if(e.key===' '||e.key==='Enter'||e.key==='MediaPlayPause'){e.preventDefault();toggle()}
+ if(e.key==='ArrowUp'){speed.value=Math.min(220,Number(speed.value)+5);save();showToast('السرعة '+speed.value)}
+ if(e.key==='ArrowDown'){speed.value=Math.max(5,Number(speed.value)-5);save();showToast('السرعة '+speed.value)}
+ if(e.key==='ArrowRight'){setY(Math.max(0,y-80))}
+ if(e.key==='ArrowLeft'){setY(Math.min(maxY(),y+80))}
+ if(e.key==='Home'){reset()}
+ if(e.key==='f'||e.key==='F'){fullscreen()}
+});
+wrap.addEventListener('click',toggle);wrap.addEventListener('touchend',function(e){e.preventDefault();toggle()},{passive:false});
+window.addEventListener('resize',function(){setY(Math.min(y,maxY()))});
+load();setTimeout(function(){wrap.focus()},500);
+})();
 </script>
 </body>
 </html>
