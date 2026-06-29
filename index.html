@@ -1,80 +1,106 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Teleprompter الدهشان</title>
-<style>
-:root{--bg:#050505;--panel:#111;--text:#fff;--muted:#bbb;--accent:#18a058;--danger:#c0392b;--border:#333}
-*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Arial,Tahoma,sans-serif;overflow:hidden}
-body{direction:rtl}.screen{height:100vh;width:100vw;display:flex;flex-direction:column}.topbar{background:#0d0d0d;border-bottom:1px solid var(--border);padding:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;z-index:5}.brand{font-weight:700;margin-left:8px;white-space:nowrap}.btn{background:#222;color:#fff;border:1px solid #555;border-radius:9px;padding:10px 14px;font-size:17px;cursor:pointer;min-width:70px}.btn:focus,.btn:hover{outline:3px solid #fff;background:#333}.btn.primary{background:var(--accent);border-color:var(--accent);font-weight:700}.btn.danger{background:var(--danger);border-color:var(--danger)}.btn.small{font-size:15px;padding:8px 10px;min-width:48px}.status{color:var(--muted);font-size:14px;margin-right:auto;direction:rtl;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wrap{flex:1;display:grid;grid-template-columns:390px 1fr;min-height:0}.editor{background:var(--panel);border-left:1px solid var(--border);padding:12px;display:flex;flex-direction:column;gap:10px;min-height:0}.editor h2{font-size:18px;margin:0;color:#eee}.editor textarea{width:100%;flex:1;resize:none;background:#060606;color:#fff;border:1px solid #444;border-radius:10px;padding:12px;font-size:18px;line-height:1.7;direction:rtl;font-family:Arial,Tahoma,sans-serif}.field{display:flex;align-items:center;gap:8px;justify-content:space-between}.field label{font-size:15px;color:#ddd;white-space:nowrap}.field input[type=range]{width:190px}.field input[type=number]{width:76px;background:#060606;color:#fff;border:1px solid #555;border-radius:8px;padding:7px}.linkbox{display:none;gap:6px;flex-direction:column;background:#050505;border:1px solid #444;border-radius:10px;padding:8px}.linkbox textarea{height:74px;font-size:13px;direction:ltr;text-align:left;line-height:1.3}.stage{position:relative;overflow:hidden;background:#000;min-height:0}.guide{position:absolute;left:0;right:0;top:48%;height:2px;background:rgba(255,255,255,.25);z-index:2;pointer-events:none}.prompt{position:absolute;left:0;right:0;top:0;transform:translateY(0);padding:45vh 7vw 60vh 7vw;white-space:pre-wrap;word-wrap:break-word;line-height:1.65;font-size:48px;text-align:center;color:#fff;direction:rtl}.prompt.mirror{transform:scaleX(-1) translateY(0)}.hideEditor .wrap{grid-template-columns:1fr}.hideEditor .editor{display:none}.hideControls .topbar{display:none}.hideControls .wrap{grid-template-columns:1fr;height:100vh}.toast{position:fixed;bottom:16px;left:16px;right:16px;background:#222;border:1px solid #555;border-radius:12px;padding:12px;text-align:center;font-size:17px;display:none;z-index:20}.qrhint{font-size:13px;color:#aaa;line-height:1.5}@media(max-width:800px){.wrap{grid-template-columns:1fr}.editor{max-height:45vh;border-left:0;border-bottom:1px solid var(--border)}.prompt{font-size:38px}.status{display:none}.btn{font-size:16px;padding:9px 11px}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Teleprompter الدهشان - TV Sync</title>
+  <style>
+    :root{--bg:#070707;--panel:#151515;--card:#202020;--text:#f7f7f7;--muted:#bdbdbd;--accent:#f0c36a;--danger:#ff6b6b;--ok:#5ee18a;--border:#333;--font:54px;--speed:35}
+    *{box-sizing:border-box} html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Arial,Tahoma,sans-serif;overflow:hidden}
+    button,input,textarea,select{font:inherit}
+    .app{height:100%;display:flex;flex-direction:column}
+    .top{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 14px;background:#111;border-bottom:1px solid var(--border);z-index:20}
+    .brand{font-weight:700;color:var(--accent);white-space:nowrap}.status{font-size:16px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.btns{display:flex;gap:8px;flex-wrap:wrap}
+    button{background:#2a2a2a;color:#fff;border:1px solid #555;border-radius:12px;padding:10px 14px;cursor:pointer;min-width:86px;touch-action:manipulation}
+    button:focus{outline:4px solid var(--accent);outline-offset:2px} button.primary{background:#b8860b;color:#111;font-weight:700;border-color:#f3cd72} button.ok{background:#145c2c;border-color:#27944b} button.danger{background:#6b1f1f;border-color:#9f3333}
+    .screen{position:relative;flex:1;overflow:hidden;background:#000}
+    .reader{position:absolute;inset:0;overflow:hidden;padding:8vh 7vw;text-align:center;line-height:1.7;font-size:var(--font);font-weight:700;white-space:pre-wrap;word-break:break-word;transform-origin:center center}
+    .reader.mirror{transform:scaleX(-1)}
+    .content{position:absolute;left:0;right:0;top:0;padding-bottom:80vh}
+    .marker{position:absolute;top:50%;left:0;right:0;border-top:2px solid rgba(240,195,106,.5);z-index:3;pointer-events:none}
+    .panel{position:absolute;inset:0;background:rgba(0,0,0,.96);z-index:30;overflow:auto;padding:22px;display:block}
+    .panel.hidden{display:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1200px;margin:auto}.box{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:16px}.box h2{margin:0 0 12px;color:var(--accent)}
+    textarea{width:100%;height:44vh;background:#070707;color:#fff;border:1px solid #555;border-radius:14px;padding:14px;line-height:1.7;resize:vertical;direction:rtl} input{width:100%;background:#070707;color:#fff;border:1px solid #555;border-radius:12px;padding:12px;direction:ltr;text-align:center}.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.small{font-size:16px;color:var(--muted);line-height:1.7}.code{font-size:52px;letter-spacing:5px;direction:ltr;text-align:center;background:#000;border:2px dashed var(--accent);border-radius:16px;padding:18px;margin:12px 0;color:var(--accent);font-weight:900}.hide{display:none!important}.ltr{direction:ltr;text-align:left}.toast{position:fixed;bottom:18px;left:18px;right:18px;background:#222;border:1px solid #555;border-radius:14px;padding:12px 14px;z-index:99;text-align:center;display:none}.toast.show{display:block}
+    @media(max-width:800px){.grid{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.reader{font-size:38px;padding:9vh 4vw}.code{font-size:36px}}
+  </style>
 </head>
 <body>
-<div class="screen" id="app">
-  <div class="topbar" id="topbar">
+<div class="app">
+  <div class="top">
     <div class="brand">Teleprompter الدهشان</div>
-    <button class="btn primary" id="playBtn" tabindex="1">▶ تشغيل</button>
-    <button class="btn" id="resetBtn" tabindex="2">↺ رجوع</button>
-    <button class="btn" id="fsBtn" tabindex="3">ملء الشاشة</button>
-    <button class="btn" id="toggleEditBtn" tabindex="4">إخفاء التحرير</button>
-    <button class="btn" id="shareBtn" tabindex="5">رابط قصير للتليفزيون</button>
-    <span class="status" id="status">جاهز</span>
+    <div id="status" class="status">جاهز</div>
+    <div class="btns">
+      <button id="playBtn" class="primary">تشغيل</button><button id="pauseBtn">إيقاف</button><button id="resetBtn">بداية</button><button id="settingsBtn">إعدادات</button>
+    </div>
   </div>
-  <div class="wrap">
-    <aside class="editor" id="editorPanel">
-      <h2>الصق النص هنا من اللاب</h2>
-      <textarea id="textInput" placeholder="الصق النص هنا... ثم اضغط رابط قصير للتليفزيون"></textarea>
-      <div class="field"><label>السرعة</label><input id="speed" type="range" min="5" max="180" value="45"><input id="speedNum" type="number" min="5" max="180" value="45"></div>
-      <div class="field"><label>حجم الخط</label><input id="fontSize" type="range" min="24" max="110" value="52"><input id="fontNum" type="number" min="24" max="110" value="52"></div>
-      <div class="field"><label>عكس النص Mirror</label><input id="mirror" type="checkbox"></div>
-      <div class="field"><label>إخفاء الأزرار عند التشغيل</label><input id="autoHide" type="checkbox" checked></div>
-      <div class="linkbox" id="linkBox">
-        <div class="qrhint">افتح هذا الرابط على التليفزيون. الرابط قصير لأن النص محفوظ أونلاين.</div>
-        <textarea id="shareLink" readonly></textarea>
-        <button class="btn small primary" id="copyBtn">نسخ الرابط</button>
-      </div>
-      <div class="qrhint">على التليفزيون: زر OK أو Enter يشغل ويوقف. الأسهم ↑ ↓ تغير السرعة. الأسهم ← → تغير حجم الخط.</div>
-    </aside>
-    <main class="stage" id="stage" tabindex="6">
-      <div class="guide"></div>
-      <div class="prompt" id="prompt"></div>
-    </main>
+  <div class="screen" id="screen">
+    <div class="marker"></div>
+    <div class="reader" id="reader"><div class="content" id="content">افتح الإعدادات والصق النص أو استقبله من اللاب.</div></div>
   </div>
 </div>
-<div class="toast" id="toast"></div>
+<div class="panel" id="panel">
+  <div class="grid">
+    <div class="box">
+      <h2>١) كتابة النص من اللاب</h2>
+      <textarea id="textInput" placeholder="الصق نص الفيديو هنا..."></textarea>
+      <div class="row"><button id="applyText" class="ok">تطبيق النص</button><button id="clearText" class="danger">مسح</button></div>
+      <p class="small">هذه النسخة لا تضع النص داخل الرابط. افتح نفس الرابط على التليفزيون ثم أرسل النص من اللاب بكود قصير.</p>
+    </div>
+    <div class="box">
+      <h2>٢) إرسال النص للتليفزيون</h2>
+      <div class="row"><button id="tvMode" class="primary">وضع التليفزيون</button><button id="laptopMode">وضع اللاب</button></div>
+      <div id="tvBox" class="hide">
+        <p class="small">اترك هذه الشاشة مفتوحة على التليفزيون. ادخل هذا الكود من اللاب:</p>
+        <div id="tvCode" class="code">-----</div>
+        <p id="tvState" class="small">جارِ التجهيز...</p>
+      </div>
+      <div id="sendBox" class="hide">
+        <p class="small">اكتب كود التليفزيون ثم اضغط إرسال.</p>
+        <input id="codeInput" maxlength="6" placeholder="TV CODE" />
+        <div class="row"><button id="sendToTv" class="ok">إرسال للتليفزيون</button></div>
+        <p id="sendState" class="small"></p>
+      </div>
+    </div>
+    <div class="box">
+      <h2>٣) التحكم</h2>
+      <div class="row"><button id="fontPlus">تكبير</button><button id="fontMinus">تصغير</button><button id="speedPlus">أسرع</button><button id="speedMinus">أبطأ</button><button id="mirrorBtn">Mirror</button><button id="fullBtn">ملء الشاشة</button></div>
+      <p class="small">على ريموت التليفزيون: زر OK أو Enter يشغل ويوقف. الأسهم فوق/تحت تغير السرعة. الأسهم يمين/شمال تغير حجم الخط.</p>
+    </div>
+    <div class="box">
+      <h2>الرابط الثابت</h2>
+      <p class="small">افتح هذا الرابط على التليفزيون فقط، بدون أي نص طويل:</p>
+      <input id="baseLink" readonly />
+      <div class="row"><button id="copyBase">نسخ الرابط</button><button id="closePanel" class="primary">فتح القراءة</button></div>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 (function(){
-'use strict';
-var API='https://api.jsonstorage.net/v1/json';
-var app=document.getElementById('app'),textInput=document.getElementById('textInput'),promptEl=document.getElementById('prompt'),playBtn=document.getElementById('playBtn'),resetBtn=document.getElementById('resetBtn'),fsBtn=document.getElementById('fsBtn'),toggleEditBtn=document.getElementById('toggleEditBtn'),shareBtn=document.getElementById('shareBtn'),statusEl=document.getElementById('status'),speed=document.getElementById('speed'),speedNum=document.getElementById('speedNum'),fontSize=document.getElementById('fontSize'),fontNum=document.getElementById('fontNum'),mirror=document.getElementById('mirror'),autoHide=document.getElementById('autoHide'),linkBox=document.getElementById('linkBox'),shareLink=document.getElementById('shareLink'),copyBtn=document.getElementById('copyBtn'),stage=document.getElementById('stage'),toast=document.getElementById('toast');
-var playing=false,y=0,last=0,raf=0,loadedFromLink=false;
-function showToast(m){toast.textContent=m;toast.style.display='block';clearTimeout(showToast.t);showToast.t=setTimeout(function(){toast.style.display='none'},3500)}
-function setStatus(m){statusEl.textContent=m}
-function updatePrompt(){var t=textInput.value||'';promptEl.textContent=t.trim()?t:'الصق النص من اللاب أو افتح رابط المشاركة على التليفزيون';localStorage.setItem('dhshan_tp_text',t)}
-function applySettings(){var fs=parseInt(fontSize.value||52,10);promptEl.style.fontSize=fs+'px';fontNum.value=fs;speedNum.value=speed.value;promptEl.className='prompt'+(mirror.checked?' mirror':'');localStorage.setItem('dhshan_tp_settings',JSON.stringify({speed:speed.value,font:fontSize.value,mirror:mirror.checked,autoHide:autoHide.checked}))}
-function loadLocal(){try{var s=JSON.parse(localStorage.getItem('dhshan_tp_settings')||'{}');if(s.speed){speed.value=s.speed;speedNum.value=s.speed}if(s.font){fontSize.value=s.font;fontNum.value=s.font}if(typeof s.mirror==='boolean')mirror.checked=s.mirror;if(typeof s.autoHide==='boolean')autoHide.checked=s.autoHide;var t=localStorage.getItem('dhshan_tp_text');if(t&&!textInput.value)textInput.value=t}catch(e){}}
-function tick(ts){if(!playing)return;if(!last)last=ts;var dt=(ts-last)/1000;last=ts;y-=dt*parseFloat(speed.value||45);setTransform();raf=requestAnimationFrame(tick)}
-function setTransform(){if(mirror.checked){promptEl.style.transform='scaleX(-1) translateY('+y+'px)'}else{promptEl.style.transform='translateY('+y+'px)'}}
-function play(){updatePrompt();if(!textInput.value.trim()){showToast('ضع النص أولاً');return}playing=true;last=0;playBtn.textContent='⏸ إيقاف';if(autoHide.checked){document.body.classList.add('hideControls','hideEditor')}setStatus('يعمل');stage.focus();cancelAnimationFrame(raf);raf=requestAnimationFrame(tick)}
-function pause(){playing=false;playBtn.textContent='▶ تشغيل';document.body.classList.remove('hideControls');setStatus('متوقف');cancelAnimationFrame(raf)}
-function togglePlay(){playing?pause():play()}
-function reset(){pause();y=0;setTransform();setStatus('تم الرجوع للبداية')}
-function fullScreen(){var el=document.documentElement;if(!document.fullscreenElement){(el.requestFullscreen||el.webkitRequestFullscreen||el.msRequestFullscreen||function(){}).call(el)}else{(document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen||function(){}).call(document)}}
-function toggleEditor(){document.body.classList.toggle('hideEditor');toggleEditBtn.textContent=document.body.classList.contains('hideEditor')?'إظهار التحرير':'إخفاء التحرير'}
-function safeBase64(s){try{return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}catch(e){return ''}}
-function fromBase64(s){try{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(escape(atob(s)))}catch(e){return ''}}
-function shortUrlFromUri(uri){var m=String(uri||'').match(/\/v1\/json\/([^\/]+)\/([^\/?#]+)/);if(m)return location.origin+location.pathname+'?id='+encodeURIComponent(m[1]+'/'+m[2]);return ''}
-function apiUrlFromId(id){id=String(id||'').replace(/^\/+|\/+$/g,'');return API+'/'+id}
-async function createShortLink(){updatePrompt();applySettings();var t=textInput.value.trim();if(!t){showToast('ضع النص أولاً');return}var bytes=new Blob([t]).size;if(bytes>62000){showToast('النص كبير جدًا للخدمة المجانية. قسّمه إلى جزءين.');return}setStatus('جاري حفظ النص أونلاين...');shareBtn.disabled=true;try{var payload={text:t,settings:{speed:speed.value,font:fontSize.value,mirror:mirror.checked,autoHide:autoHide.checked},created:new Date().toISOString(),app:'dhshan-teleprompter'};var res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!res.ok)throw new Error('HTTP '+res.status);var loc=res.headers.get('Location')||'';if(!loc){try{var j=await res.json();loc=j.uri||j.url||''}catch(e){}}
-var link=shortUrlFromUri(loc);if(!link)throw new Error('No Location header');shareLink.value=link;linkBox.style.display='flex';setStatus('تم إنشاء الرابط القصير');showToast('تم إنشاء الرابط القصير. انسخه وافتحه على التليفزيون.');try{await navigator.clipboard.writeText(link);showToast('تم إنشاء الرابط ونسخه تلقائيًا')}catch(e){}
-}catch(err){console.error(err);setStatus('فشل إنشاء الرابط');showToast('تعذر إنشاء الرابط القصير. تأكد من الإنترنت أو جرّب تحديث الصفحة.');}
-finally{shareBtn.disabled=false}
-}
-async function loadFromId(id){setStatus('جاري تحميل النص...');try{var res=await fetch(apiUrlFromId(id),{method:'GET'});if(!res.ok)throw new Error('HTTP '+res.status);var data=await res.json();if(!data||!data.text)throw new Error('No text');textInput.value=data.text;if(data.settings){if(data.settings.speed){speed.value=data.settings.speed;speedNum.value=data.settings.speed}if(data.settings.font){fontSize.value=data.settings.font;fontNum.value=data.settings.font}if(typeof data.settings.mirror==='boolean')mirror.checked=data.settings.mirror;if(typeof data.settings.autoHide==='boolean')autoHide.checked=data.settings.autoHide}loadedFromLink=true;updatePrompt();applySettings();document.body.classList.add('hideEditor');setStatus('تم تحميل النص من الرابط');showToast('تم تحميل النص. اضغط OK أو تشغيل للبدء.')}catch(e){console.error(e);setStatus('فشل تحميل النص');showToast('تعذر تحميل النص من الرابط. تأكد من الإنترنت ومن صحة الرابط.')}}
-function readUrl(){var p=new URLSearchParams(location.search);var id=p.get('id');if(id){loadFromId(id);return}var old=p.get('t')||p.get('text');if(old){var txt=fromBase64(old);if(txt){textInput.value=txt;loadedFromLink=true;updatePrompt();document.body.classList.add('hideEditor');showToast('تم تحميل النص من الرابط القديم');}}}
-playBtn.addEventListener('click',togglePlay);playBtn.addEventListener('touchend',function(e){e.preventDefault();togglePlay()});resetBtn.addEventListener('click',reset);fsBtn.addEventListener('click',fullScreen);toggleEditBtn.addEventListener('click',toggleEditor);shareBtn.addEventListener('click',createShortLink);copyBtn.addEventListener('click',function(){shareLink.select();document.execCommand('copy');showToast('تم نسخ الرابط')});textInput.addEventListener('input',updatePrompt);speed.addEventListener('input',applySettings);fontSize.addEventListener('input',applySettings);speedNum.addEventListener('input',function(){speed.value=this.value;applySettings()});fontNum.addEventListener('input',function(){fontSize.value=this.value;applySettings()});mirror.addEventListener('change',applySettings);autoHide.addEventListener('change',applySettings);stage.addEventListener('click',togglePlay);document.addEventListener('keydown',function(e){var k=e.key||e.code;if(k===' '||k==='Enter'||k==='NumpadEnter'||k==='MediaPlayPause'){e.preventDefault();togglePlay()}else if(k==='Escape'||k==='Backspace'){pause();document.body.classList.remove('hideControls','hideEditor')}else if(k==='ArrowUp'){speed.value=Math.min(180,parseInt(speed.value)+5);applySettings()}else if(k==='ArrowDown'){speed.value=Math.max(5,parseInt(speed.value)-5);applySettings()}else if(k==='ArrowRight'){fontSize.value=Math.min(110,parseInt(fontSize.value)+2);applySettings()}else if(k==='ArrowLeft'){fontSize.value=Math.max(24,parseInt(fontSize.value)-2);applySettings()}});
-loadLocal();readUrl();updatePrompt();applySettings();setTransform();
+  const $=id=>document.getElementById(id); let y=0, playing=false, raf=null, last=0, speed=35, font=54, mirror=false, peer=null, conn=null;
+  const content=$('content'), reader=$('reader'), panel=$('panel'), status=$('status'), toast=$('toast');
+  const baseUrl=location.origin+location.pathname; $('baseLink').value=baseUrl;
+  function msg(s){status.textContent=s; toast.textContent=s; toast.className='toast show'; setTimeout(()=>toast.className='toast',2200)}
+  function setText(t){ t=(t||'').trim(); if(!t){msg('لا يوجد نص');return} content.textContent=t; $('textInput').value=t; localStorage.setItem('dhshan_text',t); reset(); msg('تم تحميل النص'); }
+  function reset(){ y=0; content.style.transform='translateY(0px)'; }
+  function tick(ts){ if(!playing)return; if(!last)last=ts; const dt=(ts-last)/1000; last=ts; y-=speed*dt; content.style.transform='translateY('+y+'px)'; raf=requestAnimationFrame(tick); }
+  function play(){ if(playing)return; playing=true; last=0; $('playBtn').textContent='يعمل'; raf=requestAnimationFrame(tick); msg('تشغيل'); }
+  function pause(){ playing=false; $('playBtn').textContent='تشغيل'; if(raf)cancelAnimationFrame(raf); msg('إيقاف'); }
+  function toggle(){ playing?pause():play(); }
+  function applyStyle(){ document.documentElement.style.setProperty('--font',font+'px'); reader.classList.toggle('mirror',mirror); localStorage.setItem('dhshan_font',font); localStorage.setItem('dhshan_speed',speed); localStorage.setItem('dhshan_mirror',mirror?'1':'0'); }
+  window.addEventListener('load',()=>{ const t=localStorage.getItem('dhshan_text'); if(t){content.textContent=t; $('textInput').value=t} font=+(localStorage.getItem('dhshan_font')||54); speed=+(localStorage.getItem('dhshan_speed')||35); mirror=localStorage.getItem('dhshan_mirror')==='1'; applyStyle(); if(new URLSearchParams(location.search).get('tv')==='1') startTv(); });
+  $('playBtn').onclick=toggle; $('pauseBtn').onclick=pause; $('resetBtn').onclick=()=>{reset();msg('رجوع للبداية')}; $('settingsBtn').onclick=()=>panel.classList.remove('hidden'); $('closePanel').onclick=()=>panel.classList.add('hidden');
+  $('applyText').onclick=()=>setText($('textInput').value); $('clearText').onclick=()=>{$('textInput').value=''; localStorage.removeItem('dhshan_text');};
+  $('fontPlus').onclick=()=>{font+=4;applyStyle()}; $('fontMinus').onclick=()=>{font=Math.max(20,font-4);applyStyle()}; $('speedPlus').onclick=()=>{speed+=5;applyStyle();msg('السرعة '+speed)}; $('speedMinus').onclick=()=>{speed=Math.max(5,speed-5);applyStyle();msg('السرعة '+speed)}; $('mirrorBtn').onclick=()=>{mirror=!mirror;applyStyle()}; $('fullBtn').onclick=()=>{document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}; $('copyBase').onclick=()=>navigator.clipboard&&navigator.clipboard.writeText(baseUrl).then(()=>msg('تم نسخ الرابط'));
+  document.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()} if(e.key==='ArrowUp'){speed+=5;applyStyle();msg('السرعة '+speed)} if(e.key==='ArrowDown'){speed=Math.max(5,speed-5);applyStyle();msg('السرعة '+speed)} if(e.key==='ArrowRight'){font+=4;applyStyle()} if(e.key==='ArrowLeft'){font=Math.max(20,font-4);applyStyle()} if(e.key==='Escape')panel.classList.toggle('hidden'); });
+  function code(){return Math.random().toString(36).replace(/[^a-z0-9]/g,'').slice(2,8).toUpperCase();}
+  function peerId(c){return 'dhshan-tv-'+c.toLowerCase();}
+  function makePeer(id){ return new Peer(id,{debug:0,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'}]}}); }
+  function startTv(){ $('tvBox').classList.remove('hide'); $('sendBox').classList.add('hide'); if(peer)try{peer.destroy()}catch(e){}; const c=code(); $('tvCode').textContent=c; $('tvState').textContent='انتظار اتصال اللاب...'; try{ peer=makePeer(peerId(c)); peer.on('open',()=>{msg('وضع التليفزيون جاهز');$('tvState').textContent='جاهز لاستقبال النص'}); peer.on('connection',cn=>{conn=cn; $('tvState').textContent='تم اتصال اللاب'; cn.on('data',data=>{ if(data&&data.type==='text'){ setText(data.text); panel.classList.add('hidden'); pause(); reset(); if(data.autoplay) setTimeout(play,500); cn.send({ok:true}); } });}); peer.on('error',err=>{$('tvState').textContent='خطأ اتصال: '+err.type; msg('خطأ اتصال')}); }catch(e){$('tvState').textContent='المتصفح لا يدعم الاتصال المباشر'} }
+  function startLaptop(){ $('sendBox').classList.remove('hide'); $('tvBox').classList.add('hide'); if(!peer || peer.destroyed){ try{ peer=makePeer(); peer.on('open',()=>msg('وضع اللاب جاهز')); peer.on('error',()=>msg('تعذر تجهيز وضع اللاب')); }catch(e){msg('المتصفح لا يدعم الإرسال')} } }
+  $('tvMode').onclick=startTv; $('laptopMode').onclick=startLaptop;
+  $('sendToTv').onclick=()=>{ const c=$('codeInput').value.trim().toLowerCase(); const text=$('textInput').value.trim(); if(!c||c.length<4){msg('اكتب كود التليفزيون');return} if(!text){msg('الصق النص أولا');return} if(!peer||peer.destroyed){startLaptop(); setTimeout(()=>$('sendToTv').click(),800); return} $('sendState').textContent='جارِ الإرسال...'; const cn=peer.connect(peerId(c),{reliable:true}); let done=false; cn.on('open',()=>{cn.send({type:'text',text,autoplay:false});}); cn.on('data',d=>{ if(d&&d.ok){done=true; $('sendState').textContent='تم إرسال النص للتليفزيون'; msg('تم الإرسال'); cn.close(); }}); cn.on('error',()=>{$('sendState').textContent='فشل الإرسال. تأكد أن كود التليفزيون ظاهر وأن الجهازين متصلان بالإنترنت.'}); setTimeout(()=>{if(!done) $('sendState').textContent='لم يصل الرد. أعد فتح وضع التليفزيون وجرب مرة أخرى.'},8000); };
 })();
 </script>
 </body>
